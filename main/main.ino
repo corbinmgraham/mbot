@@ -1,90 +1,6 @@
 // Intern Project Code
 
-#include <Arduino.h>
-#include <Wire.h>
-#include <SoftwareSerial.h>
-#include "src/MeSingleLineFollower.h"
-#include "src/MeCollisionSensor.h"
-#include "src/MeBarrierSensor.h"
-#include "src/MeNewRGBLed.h"
-#include <MeMegaPi.h>
-
-MeNewRGBLed rgbled_67(67,4);
-MeNewRGBLed rgbled_68(68,4);
-MeSingleLineFollower linefollower_63(63);
-MeSingleLineFollower linefollower_64(64);
-MeCollisionSensor collision_65(65);
-MeBarrierSensor barrier_60(60);
-MeBarrierSensor barrier_61(61);
-MeBarrierSensor barrier_62(62);
-MeMegaPiDCMotor motor_1(1);
-MeMegaPiDCMotor motor_9(9);
-MeMegaPiDCMotor motor_2(2);
-MeMegaPiDCMotor motor_10(10);
-double angle_rad = PI/180.0;
-double angle_deg = 180.0/PI;
-
-float both_over_line = 0;
-float left_over_right_off_line = 0;
-float right_over_left_off_line = 0;
-float both_off_line = 0;
-float line_sensor_value = 0;
-float line_sensor1_value = 0;
-float line_sensor0_value = 0;
-
-bool lineFollowMode = true;
-bool obstacleAvoidMode = false;
-int impactCounter = 0;
-bool handRecMode = false;
-int correctHandMotion = 0;
-bool passWaveIncorrect = false;
-bool passWaveCorrect = false;
-
-void motor_foward_left_run(int16_t speed)
-{
-   motor_10.run(-speed);
-}
-
-void motor_foward_right_run(int16_t speed)
-{
-  motor_1.run(speed);
-}
-
-void motor_back_left_run(int16_t speed)
-{
-  motor_2.run(-speed);
-}
-
-void motor_back_right_run(int16_t speed)
-{
-  motor_9.run(speed);
-}
-
-void move_control(int16_t vx, int16_t vy, int16_t vw)
-{
-  int16_t foward_left_speed;
-  int16_t foward_right_speed;
-  int16_t back_left_speed;
-  int16_t back_right_speed;
-
-  foward_left_speed = vy + vx + vw;
-  foward_right_speed = vy - vx - vw;
-  back_left_speed = vy - vx + vw;
-  back_right_speed = vy + vx - vw;
-
-  motor_foward_left_run(foward_left_speed);
-  motor_foward_right_run(foward_right_speed);
-  motor_back_left_run(back_left_speed);
-  motor_back_right_run(back_right_speed);
-}
-
-void _delay(float seconds) {
-  if(seconds < 0.0){
-    seconds = 0.0;
-  }
-  long endTime = millis() + seconds * 1000;
-  while(millis() < endTime) _loop();
-}
+#include "src/Controller.h"
 
 void setup() {
   Serial.begin(9600);
@@ -101,14 +17,16 @@ void setup() {
 
   rgbled_68.setColor(0, 32,211,193);
   rgbled_68.show();
-  _delay(2);
+  delay_seconds(2);
 
-}
-
-void _loop() {
 }
 
 void loop() {
+  // Controller c(LINE_FOLLOW);
+
+  // Offload these functions to the AdvancedController class
+  // Move basic functions (move_control, etc.) that control the physical movements to the Controller class
+  // Create 
   while(lineFollowMode == true)
   {
     line_sensor0_value = (linefollower_63.readSensor() == 0);
@@ -184,7 +102,7 @@ void loop() {
 
           Serial.println("Obstacle Avoidance Initiatied");
       }
-      _delay(0.4);
+      delay_seconds(0.4);
     }
   }
 
@@ -290,7 +208,7 @@ void loop() {
         rgbled_68.setColor(0, 126,211,33);
         rgbled_68.show();
 
-        _delay(2);
+        delay_seconds(2);
         handRecMode = false;
         passWaveCorrect = false;
         correctHandMotion = 0;
@@ -303,7 +221,7 @@ void loop() {
         rgbled_68.setColor(0, 211,32,32);
         rgbled_68.show();
 
-        _delay(2);
+        delay_seconds(2);
         passWaveIncorrect = false;
         passWaveCorrect = false;
         correctHandMotion = 0;
